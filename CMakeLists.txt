@@ -7,6 +7,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 add_library(stations
+    flow/FlowParser.cpp
     station/StationFactory.cpp
     station/Stations.cpp
 )
@@ -37,3 +38,14 @@ target_link_libraries(station_behavior_tests
 )
 
 add_test(NAME station_behavior_tests COMMAND station_behavior_tests)
+
+add_executable(flow_parser_tests
+    tests/flow_parser_tests.cpp
+)
+
+target_link_libraries(flow_parser_tests
+    PRIVATE
+        stations
+)
+
+add_test(NAME flow_parser_tests COMMAND flow_parser_tests)
