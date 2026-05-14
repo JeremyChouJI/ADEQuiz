@@ -20,6 +20,7 @@ const std::map<std::string, StationCreator>& stationCreators()
 }
 }
 
+/*根據傳入的識別ID，建立對應的 Station Object*/
 std::unique_ptr<ProcessingStation> StationFactory::createStation(const std::string& stationId)
 {
     const auto& creators = stationCreators();
