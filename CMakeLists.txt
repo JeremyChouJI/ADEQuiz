@@ -8,6 +8,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 add_library(stations
     flow/FlowParser.cpp
+    production/ProductionLine.cpp
     station/StationFactory.cpp
     station/Stations.cpp
 )
@@ -49,3 +50,14 @@ target_link_libraries(flow_parser_tests
 )
 
 add_test(NAME flow_parser_tests COMMAND flow_parser_tests)
+
+add_executable(production_line_tests
+    tests/production_line_tests.cpp
+)
+
+target_link_libraries(production_line_tests
+    PRIVATE
+        stations
+)
+
+add_test(NAME production_line_tests COMMAND production_line_tests)
