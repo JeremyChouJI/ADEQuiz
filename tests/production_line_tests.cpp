@@ -1,7 +1,9 @@
 #include "production/ProductionLine.h"
 
 #include <cassert>
+#include <map>
 #include <stdexcept>
+#include <vector>
 
 int main()
 {
@@ -37,6 +39,34 @@ int main()
     assert(!line.setFlow("A->D"));
     assert(line.hasFlow());
     assert(line.processMaterial(10) == 10);
+
+    ProductionLine statsLine;
+    assert(statsLine.getProducts().empty());
+    assert(statsLine.getStationCounts().empty());
+
+    bool statsThrewWithoutFlow = false;
+    try {
+        statsLine.processMaterial(5);
+    } catch (const std::logic_error&) {
+        statsThrewWithoutFlow = true;
+    }
+    assert(statsThrewWithoutFlow);
+    assert(statsLine.getProducts().empty());
+    assert(statsLine.getStationCounts().empty());
+
+    assert(statsLine.setFlow("A->A"));
+    assert(statsLine.processMaterial(1) == 3);
+    assert((statsLine.getProducts() == std::vector<int>{3}));
+    assert((statsLine.getStationCounts() == std::map<std::string, int>{{"A", 2}}));
+
+    assert(statsLine.setFlow("A->B->C->B->A"));
+    assert(statsLine.processMaterial(2) == 3);
+    assert((statsLine.getProducts() == std::vector<int>{3, 3}));
+    assert((statsLine.getStationCounts() == std::map<std::string, int>{{"A", 4}, {"B", 1}, {"C", 1}}));
+
+    assert(!statsLine.setFlow("A->D"));
+    assert((statsLine.getProducts() == std::vector<int>{3, 3}));
+    assert((statsLine.getStationCounts() == std::map<std::string, int>{{"A", 4}, {"B", 1}, {"C", 1}}));
 
     return 0;
 }

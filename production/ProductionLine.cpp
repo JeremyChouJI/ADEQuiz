@@ -21,7 +21,7 @@ bool ProductionLine::hasFlow() const
     return !activeRoute.empty();
 }
 
-int ProductionLine::processMaterial(int input) const
+int ProductionLine::processMaterial(int input)
 {
     if (!hasFlow()) {
         throw std::logic_error("No processing flow configured. Please configure a flow first.");
@@ -37,10 +37,23 @@ int ProductionLine::processMaterial(int input) const
             throw std::logic_error("Configured processing flow contains an unknown station.");
         }
 
+        const std::string stationName = station->name();
         const ProcessResult result = station->process(currentValue);
+        ++stationCounts[stationName];
         currentValue = result.value;
         currentStep += static_cast<std::size_t>(result.nextStepOffset);
     }
 
+    products.push_back(currentValue);
     return currentValue;
+}
+
+const std::vector<int>& ProductionLine::getProducts() const
+{
+    return products;
+}
+
+const std::map<std::string, int>& ProductionLine::getStationCounts() const
+{
+    return stationCounts;
 }
