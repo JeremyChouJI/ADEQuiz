@@ -10,7 +10,6 @@ const char* invalidFlowMessage()
     return "Invalid flow format. Please use format like A->B->C.";
 }
 
-/*移除字串前後的空白，讓使用者輸入時可以包含多餘空格*/
 std::string trim(const std::string& text)
 {
     const auto first = std::find_if_not(text.begin(), text.end(), [](unsigned char ch) {
@@ -47,7 +46,6 @@ FlowParseResult unknownStationError(const std::string& stationId)
 }
 }
 
-/*分析輸入的流程文字(e.g. A->B->C)，並檢查格式與站點是否有效，最終輸出成["A", "B", "C"]*/
 FlowParseResult FlowParser::parse(const std::string& flowText)
 {
     const std::string trimmedFlow = trim(flowText);
