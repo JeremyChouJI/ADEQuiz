@@ -11,6 +11,7 @@ public:
     const std::string& getLastFlowError() const;
     bool hasFlow() const;
     int processMaterial(int input);
+    const std::vector<std::string>& getFlow() const;
     const std::vector<int>& getProducts() const;
     const std::map<std::string, int>& getStationCounts() const;
 

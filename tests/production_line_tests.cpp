@@ -22,6 +22,7 @@ int main()
 
     assert(line.setFlow("A->B"));
     assert(line.hasFlow());
+    assert((line.getFlow() == std::vector<std::string>{"A", "B"}));
     assert(line.processMaterial(10) == 10);
 
     assert(line.setFlow("A->B->C->B->A"));
@@ -38,6 +39,7 @@ int main()
 
     assert(!line.setFlow("A->D"));
     assert(line.hasFlow());
+    assert((line.getFlow() == std::vector<std::string>{"A", "C", "B"}));
     assert(line.processMaterial(10) == 10);
 
     ProductionLine statsLine;

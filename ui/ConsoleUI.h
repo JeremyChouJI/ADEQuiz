@@ -2,13 +2,18 @@
 #define UI_CONSOLEUI_H
 
 #include "production/ProductionLine.h"
+#include "state/StateManager.h"
 
 #include <iosfwd>
 #include <string>
 
 class ConsoleUI {
 public:
-    ConsoleUI(ProductionLine& productionLine, std::istream& input, std::ostream& output);
+    ConsoleUI(
+        ProductionLine& productionLine,
+        std::istream& input,
+        std::ostream& output,
+        const std::string& saveFilePath = "state.json");
 
     void run();
 
@@ -23,6 +28,7 @@ private:
     ProductionLine& productionLine;
     std::istream& input;
     std::ostream& output;
+    StateManager stateManager;
 };
 
 #endif

@@ -9,6 +9,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 add_library(stations
     flow/FlowParser.cpp
     production/ProductionLine.cpp
+    state/StateManager.cpp
     station/StationFactory.cpp
     station/Stations.cpp
     ui/ConsoleUI.cpp
@@ -73,3 +74,14 @@ target_link_libraries(console_ui_tests
 )
 
 add_test(NAME console_ui_tests COMMAND console_ui_tests)
+
+add_executable(state_manager_tests
+    tests/state_manager_tests.cpp
+)
+
+target_link_libraries(state_manager_tests
+    PRIVATE
+        stations
+)
+
+add_test(NAME state_manager_tests COMMAND state_manager_tests)

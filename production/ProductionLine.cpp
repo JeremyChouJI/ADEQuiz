@@ -55,6 +55,11 @@ int ProductionLine::processMaterial(int input)
     return currentValue;
 }
 
+const std::vector<std::string>& ProductionLine::getFlow() const
+{
+    return activeRoute;
+}
+
 const std::vector<int>& ProductionLine::getProducts() const
 {
     return products;

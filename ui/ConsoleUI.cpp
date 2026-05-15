@@ -45,10 +45,15 @@ bool parseInteger(const std::string& text, int& value)
 }
 }
 
-ConsoleUI::ConsoleUI(ProductionLine& productionLine, std::istream& input, std::ostream& output)
+ConsoleUI::ConsoleUI(
+    ProductionLine& productionLine,
+    std::istream& input,
+    std::ostream& output,
+    const std::string& saveFilePath)
     : productionLine(productionLine)
     , input(input)
     , output(output)
+    , stateManager(saveFilePath)
 {
 }
 
@@ -99,6 +104,9 @@ bool ConsoleUI::handleChoice(const std::string& choice)
     } else if (menuChoice == 4) {
         showStationCounts();
     } else if (menuChoice == 5) {
+        if (!stateManager.save(productionLine)) {
+            output << "Warning: Could not save application state.\n";
+        }
         return false;
     }
 

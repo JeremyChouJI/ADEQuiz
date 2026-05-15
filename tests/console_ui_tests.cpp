@@ -3,6 +3,8 @@
 #include "production/ProductionLine.h"
 
 #include <cassert>
+#include <cstdio>
+#include <fstream>
 #include <sstream>
 #include <string>
 
@@ -11,15 +13,28 @@ bool contains(const std::string& text, const std::string& expected)
 {
     return text.find(expected) != std::string::npos;
 }
+
+std::string readFile(const std::string& path)
+{
+    std::ifstream input(path);
+    std::ostringstream buffer;
+    buffer << input.rdbuf();
+    return buffer.str();
+}
 }
 
 int main()
 {
+    std::remove("state.json");
+
     {
+        const std::string savePath = "adequiz_console_ui_test_state.json";
+        std::remove(savePath.c_str());
+
         ProductionLine line;
         std::istringstream input("1\nA->B->C->B->A\n2\n2\n3\n4\n5\n");
         std::ostringstream output;
-        ConsoleUI ui(line, input, output);
+        ConsoleUI ui(line, input, output, savePath);
 
         ui.run();
 
@@ -31,6 +46,26 @@ int main()
         assert(contains(text, "Station A processed 2 times"));
         assert(contains(text, "Station B processed 1 time"));
         assert(contains(text, "Station C processed 1 time"));
+
+        const std::string json = readFile(savePath);
+        assert(contains(json, "\"flow\": [\"A\", \"B\", \"C\", \"B\", \"A\"]"));
+        assert(contains(json, "\"products\": [3]"));
+        assert(contains(json, "\"A\": 2"));
+
+        std::remove(savePath.c_str());
+    }
+
+    {
+        const std::string savePath = "C:\\tmp\\adequiz_missing_directory\\state.json";
+        ProductionLine line;
+        std::istringstream input("5\n");
+        std::ostringstream output;
+        ConsoleUI ui(line, input, output, savePath);
+
+        ui.run();
+
+        const std::string text = output.str();
+        assert(contains(text, "Warning: Could not save application state."));
     }
 
     {
@@ -95,5 +130,6 @@ int main()
         assert(contains(text, "Unknown station: D"));
     }
 
+    std::remove("state.json");
     return 0;
 }
