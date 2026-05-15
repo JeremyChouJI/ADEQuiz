@@ -55,6 +55,9 @@ ConsoleUI::ConsoleUI(
     , output(output)
     , stateManager(saveFilePath)
 {
+    if (stateManager.stateFileExists() && !stateManager.load(productionLine)) {
+        output << "Warning: Save file is invalid. Starting with empty state.\n";
+    }
 }
 
 void ConsoleUI::run()

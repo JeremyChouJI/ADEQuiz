@@ -55,6 +55,30 @@ int ProductionLine::processMaterial(int input)
     return currentValue;
 }
 
+bool ProductionLine::restoreState(
+    const std::vector<std::string>& flow,
+    const std::vector<int>& restoredProducts,
+    const std::map<std::string, int>& restoredStationCounts)
+{
+    for (const std::string& stationId : flow) {
+        if (!StationFactory::isSupportedStation(stationId)) {
+            return false;
+        }
+    }
+
+    for (const auto& stationCount : restoredStationCounts) {
+        if (!StationFactory::isSupportedStation(stationCount.first) || stationCount.second < 0) {
+            return false;
+        }
+    }
+
+    activeRoute = flow;
+    products = restoredProducts;
+    stationCounts = restoredStationCounts;
+    lastFlowError.clear();
+    return true;
+}
+
 const std::vector<std::string>& ProductionLine::getFlow() const
 {
     return activeRoute;

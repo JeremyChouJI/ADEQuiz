@@ -69,6 +69,58 @@ int main()
     }
 
     {
+        const std::string savePath = "adequiz_console_ui_restore_state.json";
+        std::remove(savePath.c_str());
+
+        {
+            std::ofstream output(savePath);
+            output << "{\n";
+            output << "  \"flow\": [\"A\", \"B\", \"C\", \"B\", \"A\"],\n";
+            output << "  \"products\": [3],\n";
+            output << "  \"counts\": {\"A\": 2, \"B\": 1, \"C\": 1}\n";
+            output << "}\n";
+        }
+
+        ProductionLine line;
+        std::istringstream input("3\n4\n2\n2\n5\n");
+        std::ostringstream output;
+        ConsoleUI ui(line, input, output, savePath);
+
+        ui.run();
+
+        const std::string text = output.str();
+        assert(contains(text, "Products:\n1. 3\n\nTotal: 1 product"));
+        assert(contains(text, "Station A processed 2 times"));
+        assert(contains(text, "Final product: 3"));
+        assert((line.getProducts() == std::vector<int>{3, 3}));
+
+        std::remove(savePath.c_str());
+    }
+
+    {
+        const std::string savePath = "adequiz_console_ui_invalid_state.json";
+        std::remove(savePath.c_str());
+
+        {
+            std::ofstream output(savePath);
+            output << "{ invalid json";
+        }
+
+        ProductionLine line;
+        std::istringstream input("3\n5\n");
+        std::ostringstream output;
+        ConsoleUI ui(line, input, output, savePath);
+
+        ui.run();
+
+        const std::string text = output.str();
+        assert(contains(text, "Warning: Save file is invalid. Starting with empty state."));
+        assert(contains(text, "No products have been produced yet."));
+
+        std::remove(savePath.c_str());
+    }
+
+    {
         ProductionLine line;
         std::istringstream input("3\n4\n5\n");
         std::ostringstream output;

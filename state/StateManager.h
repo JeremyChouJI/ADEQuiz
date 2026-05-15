@@ -9,6 +9,8 @@ class StateManager {
 public:
     explicit StateManager(std::string filePath = "state.json");
 
+    bool stateFileExists() const;
+    bool load(ProductionLine& productionLine) const;
     bool save(const ProductionLine& productionLine) const;
 
 private:
