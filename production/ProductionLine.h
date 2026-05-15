@@ -8,6 +8,7 @@
 class ProductionLine {
 public:
     bool setFlow(const std::string& flowText);
+    const std::string& getLastFlowError() const;
     bool hasFlow() const;
     int processMaterial(int input);
     const std::vector<int>& getProducts() const;
@@ -17,6 +18,7 @@ private:
     std::vector<std::string> activeRoute;
     std::vector<int> products;
     std::map<std::string, int> stationCounts;
+    std::string lastFlowError;
 };
 
 #endif

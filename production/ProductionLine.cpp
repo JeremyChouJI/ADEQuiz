@@ -9,11 +9,18 @@ bool ProductionLine::setFlow(const std::string& flowText)
     const FlowParseResult result = FlowParser::parse(flowText);
 
     if (!result.success) {
+        lastFlowError = result.errorMessage;
         return false;
     }
 
     activeRoute = result.stationIds;
+    lastFlowError.clear();
     return true;
+}
+
+const std::string& ProductionLine::getLastFlowError() const
+{
+    return lastFlowError;
 }
 
 bool ProductionLine::hasFlow() const

@@ -1,9 +1,49 @@
 #include "ui/ConsoleUI.h"
 
 #include <cstddef>
+#include <algorithm>
+#include <cctype>
 #include <istream>
 #include <ostream>
 #include <stdexcept>
+
+namespace {
+std::string trim(const std::string& text)
+{
+    const auto first = std::find_if_not(text.begin(), text.end(), [](unsigned char ch) {
+        return std::isspace(ch);
+    });
+
+    if (first == text.end()) {
+        return "";
+    }
+
+    const auto last = std::find_if_not(text.rbegin(), text.rend(), [](unsigned char ch) {
+        return std::isspace(ch);
+    }).base();
+
+    return std::string(first, last);
+}
+
+bool parseInteger(const std::string& text, int& value)
+{
+    const std::string trimmedText = trim(text);
+
+    if (trimmedText.empty()) {
+        return false;
+    }
+
+    try {
+        std::size_t parsedCharacters = 0;
+        value = std::stoi(trimmedText, &parsedCharacters);
+        return parsedCharacters == trimmedText.size();
+    } catch (const std::invalid_argument&) {
+        return false;
+    } catch (const std::out_of_range&) {
+        return false;
+    }
+}
+}
 
 ConsoleUI::ConsoleUI(ProductionLine& productionLine, std::istream& input, std::ostream& output)
     : productionLine(productionLine)
@@ -43,18 +83,23 @@ void ConsoleUI::showMenu() const
 
 bool ConsoleUI::handleChoice(const std::string& choice)
 {
-    if (choice == "1") {
+    int menuChoice = 0;
+    if (!parseInteger(choice, menuChoice) || menuChoice < 1 || menuChoice > 5) {
+        output << "Invalid choice. Please choose a number from 1 to 5.\n";
+        output << '\n';
+        return true;
+    }
+
+    if (menuChoice == 1) {
         setProcessingFlow();
-    } else if (choice == "2") {
+    } else if (menuChoice == 2) {
         inputRawMaterial();
-    } else if (choice == "3") {
+    } else if (menuChoice == 3) {
         showProducts();
-    } else if (choice == "4") {
+    } else if (menuChoice == 4) {
         showStationCounts();
-    } else if (choice == "5") {
+    } else if (menuChoice == 5) {
         return false;
-    } else {
-        output << "Invalid choice.\n";
     }
 
     output << '\n';
@@ -74,7 +119,7 @@ void ConsoleUI::setProcessingFlow()
     if (productionLine.setFlow(flowText)) {
         output << "Processing flow set successfully.\n";
     } else {
-        output << "Failed to set processing flow.\n";
+        output << productionLine.getLastFlowError() << '\n';
     }
 }
 
@@ -89,10 +134,8 @@ void ConsoleUI::inputRawMaterial()
     }
 
     try {
-        std::size_t parsedCharacters = 0;
-        const int material = std::stoi(rawInput, &parsedCharacters);
-
-        if (parsedCharacters != rawInput.size()) {
+        int material = 0;
+        if (!parseInteger(rawInput, material)) {
             output << "Invalid input. Please enter an integer.\n";
             return;
         }
