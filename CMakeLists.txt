@@ -11,6 +11,7 @@ add_library(stations
     production/ProductionLine.cpp
     station/StationFactory.cpp
     station/Stations.cpp
+    ui/ConsoleUI.cpp
 )
 
 target_include_directories(stations
@@ -61,3 +62,14 @@ target_link_libraries(production_line_tests
 )
 
 add_test(NAME production_line_tests COMMAND production_line_tests)
+
+add_executable(console_ui_tests
+    tests/console_ui_tests.cpp
+)
+
+target_link_libraries(console_ui_tests
+    PRIVATE
+        stations
+)
+
+add_test(NAME console_ui_tests COMMAND console_ui_tests)
