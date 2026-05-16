@@ -159,6 +159,9 @@ void ConsoleUI::inputRawMaterial()
 
         const int finalProduct = productionLine.processMaterial(material);
         output << "Final product: " << finalProduct << '\n';
+        if (!stateManager.save(productionLine)) {
+            output << "Warning: Could not auto-save application state.\n";
+        }
     } catch (const std::invalid_argument&) {
         output << "Invalid input. Please enter an integer.\n";
     } catch (const std::out_of_range&) {

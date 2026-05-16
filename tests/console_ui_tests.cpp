@@ -21,6 +21,12 @@ std::string readFile(const std::string& path)
     buffer << input.rdbuf();
     return buffer.str();
 }
+
+bool fileExists(const std::string& path)
+{
+    std::ifstream input(path);
+    return input.good();
+}
 }
 
 int main()
@@ -96,6 +102,62 @@ int main()
         assert((line.getProducts() == std::vector<int>{3, 3}));
 
         std::remove(savePath.c_str());
+    }
+
+    {
+        const std::string savePath = "adequiz_console_ui_auto_save_state.json";
+        std::remove(savePath.c_str());
+
+        ProductionLine line;
+        std::istringstream input("1\nA->B->C->B->A\n2\n2\n");
+        std::ostringstream output;
+        ConsoleUI ui(line, input, output, savePath);
+
+        ui.run();
+
+        const std::string text = output.str();
+        assert(contains(text, "Final product: 3"));
+
+        const std::string json = readFile(savePath);
+        assert(contains(json, "\"flow\": [\"A\", \"B\", \"C\", \"B\", \"A\"]"));
+        assert(contains(json, "\"products\": [3]"));
+        assert(contains(json, "\"A\": 2"));
+        assert(contains(json, "\"B\": 1"));
+        assert(contains(json, "\"C\": 1"));
+
+        std::remove(savePath.c_str());
+    }
+
+    {
+        const std::string savePath = "adequiz_console_ui_no_auto_save_invalid_input.json";
+        std::remove(savePath.c_str());
+
+        ProductionLine line;
+        std::istringstream input("1\nA->B\n2\nabc\n");
+        std::ostringstream output;
+        ConsoleUI ui(line, input, output, savePath);
+
+        ui.run();
+
+        const std::string text = output.str();
+        assert(contains(text, "Invalid input. Please enter an integer."));
+        assert(!fileExists(savePath));
+    }
+
+    {
+        const std::string savePath = "adequiz_console_ui_no_auto_save_without_flow.json";
+        std::remove(savePath.c_str());
+
+        ProductionLine line;
+        std::istringstream input("2\n1\n");
+        std::ostringstream output;
+        ConsoleUI ui(line, input, output, savePath);
+
+        ui.run();
+
+        const std::string text = output.str();
+        assert(contains(text, "No processing flow configured. Please configure a flow first."));
+        assert(!fileExists(savePath));
     }
 
     {
