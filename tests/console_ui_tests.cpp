@@ -32,7 +32,7 @@ int main()
         std::remove(savePath.c_str());
 
         ProductionLine line;
-        std::istringstream input("1\nA->B->C->B->A\n2\n2\n3\n4\n5\n");
+        std::istringstream input("1\nA->B->C->B->A\n2\n2\n3\n4\n5\n6\n");
         std::ostringstream output;
         ConsoleUI ui(line, input, output, savePath);
 
@@ -42,6 +42,7 @@ int main()
         assert(contains(text, "Manufacturing Station Console"));
         assert(contains(text, "Processing flow set successfully."));
         assert(contains(text, "Final product: 3"));
+        assert(contains(text, "Current processing flow: A->B->C->B->A"));
         assert(contains(text, "Products:\n1. 3\n\nTotal: 1 product"));
         assert(contains(text, "Station A processed 2 times"));
         assert(contains(text, "Station B processed 1 time"));
@@ -58,7 +59,7 @@ int main()
     {
         const std::string savePath = "C:\\tmp\\adequiz_missing_directory\\state.json";
         ProductionLine line;
-        std::istringstream input("5\n");
+        std::istringstream input("6\n");
         std::ostringstream output;
         ConsoleUI ui(line, input, output, savePath);
 
@@ -82,7 +83,7 @@ int main()
         }
 
         ProductionLine line;
-        std::istringstream input("3\n4\n2\n2\n5\n");
+        std::istringstream input("4\n5\n2\n2\n6\n");
         std::ostringstream output;
         ConsoleUI ui(line, input, output, savePath);
 
@@ -107,7 +108,7 @@ int main()
         }
 
         ProductionLine line;
-        std::istringstream input("3\n5\n");
+        std::istringstream input("4\n6\n");
         std::ostringstream output;
         ConsoleUI ui(line, input, output, savePath);
 
@@ -122,32 +123,33 @@ int main()
 
     {
         ProductionLine line;
-        std::istringstream input("3\n4\n5\n");
+        std::istringstream input("3\n4\n5\n6\n");
         std::ostringstream output;
         ConsoleUI ui(line, input, output);
 
         ui.run();
 
         const std::string text = output.str();
+        assert(contains(text, "No processing flow configured."));
         assert(contains(text, "No products have been produced yet."));
         assert(contains(text, "No station has processed material yet."));
     }
 
     {
         ProductionLine line;
-        std::istringstream input("abc\n12abc\n3.14\n1 2\n0\n6\n5\n");
+        std::istringstream input("abc\n12abc\n3.14\n1 2\n0\n7\n6\n");
         std::ostringstream output;
         ConsoleUI ui(line, input, output);
 
         ui.run();
 
         const std::string text = output.str();
-        assert(contains(text, "Invalid choice. Please choose a number from 1 to 5."));
+        assert(contains(text, "Invalid choice. Please choose a number from 1 to 6."));
     }
 
     {
         ProductionLine line;
-        std::istringstream input("2\nabc\n2\n12abc\n2\n3.14\n2\n1 2\n5\n");
+        std::istringstream input("2\nabc\n2\n12abc\n2\n3.14\n2\n1 2\n6\n");
         std::ostringstream output;
         ConsoleUI ui(line, input, output);
 
@@ -159,7 +161,7 @@ int main()
 
     {
         ProductionLine line;
-        std::istringstream input("2\n1\n5\n");
+        std::istringstream input("2\n1\n6\n");
         std::ostringstream output;
         ConsoleUI ui(line, input, output);
 
@@ -171,7 +173,7 @@ int main()
 
     {
         ProductionLine line;
-        std::istringstream input("1\nA->\n1\nA->D->B\n5\n");
+        std::istringstream input("1\nA->\n1\nA->D->B\n6\n");
         std::ostringstream output;
         ConsoleUI ui(line, input, output);
 

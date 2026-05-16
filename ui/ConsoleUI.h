@@ -22,6 +22,7 @@ private:
     bool handleChoice(const std::string& choice);
     void setProcessingFlow();
     void inputRawMaterial();
+    void showCurrentFlow() const;
     void showProducts() const;
     void showStationCounts() const;
 

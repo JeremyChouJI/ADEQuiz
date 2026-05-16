@@ -83,17 +83,18 @@ void ConsoleUI::showMenu() const
     output << "==============================\n";
     output << "1. Set processing flow\n";
     output << "2. Input raw material\n";
-    output << "3. Show all products\n";
-    output << "4. Show station processing counts\n";
-    output << "5. Exit and save\n";
+    output << "3. Show current processing flow\n";
+    output << "4. Show all products\n";
+    output << "5. Show station processing counts\n";
+    output << "6. Exit and save\n";
     output << "Please choose:\n";
 }
 
 bool ConsoleUI::handleChoice(const std::string& choice)
 {
     int menuChoice = 0;
-    if (!parseInteger(choice, menuChoice) || menuChoice < 1 || menuChoice > 5) {
-        output << "Invalid choice. Please choose a number from 1 to 5.\n";
+    if (!parseInteger(choice, menuChoice) || menuChoice < 1 || menuChoice > 6) {
+        output << "Invalid choice. Please choose a number from 1 to 6.\n";
         output << '\n';
         return true;
     }
@@ -103,10 +104,12 @@ bool ConsoleUI::handleChoice(const std::string& choice)
     } else if (menuChoice == 2) {
         inputRawMaterial();
     } else if (menuChoice == 3) {
-        showProducts();
+        showCurrentFlow();
     } else if (menuChoice == 4) {
-        showStationCounts();
+        showProducts();
     } else if (menuChoice == 5) {
+        showStationCounts();
+    } else if (menuChoice == 6) {
         if (!stateManager.save(productionLine)) {
             output << "Warning: Could not save application state.\n";
         }
@@ -160,6 +163,27 @@ void ConsoleUI::inputRawMaterial()
     } catch (const std::logic_error& error) {
         output << error.what() << '\n';
     }
+}
+
+void ConsoleUI::showCurrentFlow() const
+{
+    const auto& flow = productionLine.getFlow();
+
+    if (flow.empty()) {
+        output << "No processing flow configured.\n";
+        return;
+    }
+
+    output << "Current processing flow: ";
+    for (std::size_t index = 0; index < flow.size(); ++index) {
+        if (index > 0) {
+            output << "->";
+        }
+
+        output << flow[index];
+    }
+
+    output << '\n';
 }
 
 void ConsoleUI::showProducts() const
