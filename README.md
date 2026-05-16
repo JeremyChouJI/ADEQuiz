@@ -23,7 +23,62 @@ The program allows users to:
 - Input validation and graceful error handling
 
 ---
+# System Deployment
 
+## Prerequisites
+
+Before building and running this project, make sure the following tools are installed:
+
+- Git
+- CMake 3.16 or later
+- A C++ compiler
+
+On Windows, Visual Studio 2022 is recommended. During installation, select the **Desktop development with C++** workload.
+
+## Verify The Installation
+
+Open a terminal and run the following commands to confirm that Git and CMake are installed correctly:
+
+```sh
+git --version
+cmake --version
+```
+
+## Download The Project
+
+Run the following commands in a terminal:
+
+```sh
+git clone https://github.com/JeremyChouJI/ADEQuiz.git
+cd ADEQuiz
+```
+
+## Generate The Build Files
+
+Run the following command from the project directory:
+
+```sh
+cmake -S . -B build
+```
+
+## Build The Project
+
+Run the following command:
+
+```sh
+cmake --build build --config Release
+```
+
+## Run The Program
+
+Run the following command:
+
+```sh
+.\build\Release\ADEQuiz.exe
+```
+
+If the command does not work, you can also locate `ADEQuiz.exe` directly in the project folder and run it manually.
+---
 ## Station Rules
 
 ### Station A
