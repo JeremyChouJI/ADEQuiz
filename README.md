@@ -94,6 +94,10 @@ Keeps the value unchanged.
 - If the input is odd, continue to the next station normally.
 - If the input is even, skip the next station.
 
+### Station D
+Adds `1` if the input is odd.
+
+Adds `2` if the input is even.
 ---
 
 ## Example
