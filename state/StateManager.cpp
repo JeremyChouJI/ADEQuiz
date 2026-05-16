@@ -5,6 +5,7 @@
 #include <nlohmann/json.hpp>
 
 #include <fstream>
+#include <limits>
 #include <map>
 #include <sstream>
 #include <string>
@@ -23,6 +24,26 @@ struct SavedState {
 bool hasRequiredFields(const json& data)
 {
     return data.contains("flow") && data.contains("products") && data.contains("counts");
+}
+
+bool productsFitInInt(const json& products)
+{
+    if (!products.is_array()) {
+        return false;
+    }
+
+    for (const json& product : products) {
+        if (!product.is_number_integer()) {
+            return false;
+        }
+
+        const long long value = product.get<long long>();
+        if (value < std::numeric_limits<int>::min() || value > std::numeric_limits<int>::max()) {
+            return false;
+        }
+    }
+
+    return true;
 }
 }
 
@@ -50,6 +71,10 @@ bool StateManager::load(ProductionLine& productionLine) const
 
         const json data = json::parse(buffer.str());
         if (!hasRequiredFields(data)) {
+            return false;
+        }
+
+        if (!productsFitInInt(data.at("products"))) {
             return false;
         }
 
