@@ -38,25 +38,25 @@ int main()
     std::remove(savePath.c_str());
 
     ProductionLine line;
-    assert(line.setFlow("A->B->C->B->A"));
+    assert(line.setFlow("A->D->B->C"));
     assert(line.processMaterial(2) == 3);
 
     StateManager stateManager(savePath);
     assert(stateManager.save(line));
 
     const nlohmann::json savedJson = readJsonFile(savePath);
-    assert((savedJson.at("flow").get<std::vector<std::string>>() == std::vector<std::string>{"A", "B", "C", "B", "A"}));
+    assert((savedJson.at("flow").get<std::vector<std::string>>() == std::vector<std::string>{"A", "D", "B", "C"}));
     assert((savedJson.at("products").get<std::vector<int>>() == std::vector<int>{3}));
-    assert((savedJson.at("counts").get<std::map<std::string, int>>() == std::map<std::string, int>{{"A", 2}, {"B", 1}, {"C", 1}}));
+    assert((savedJson.at("counts").get<std::map<std::string, int>>() == std::map<std::string, int>{{"A", 1}, {"B", 1}, {"C", 1}, {"D", 1}}));
 
     ProductionLine restoredLine;
     assert(stateManager.load(restoredLine));
-    assert((restoredLine.getFlow() == std::vector<std::string>{"A", "B", "C", "B", "A"}));
+    assert((restoredLine.getFlow() == std::vector<std::string>{"A", "D", "B", "C"}));
     assert((restoredLine.getProducts() == std::vector<int>{3}));
-    assert((restoredLine.getStationCounts() == std::map<std::string, int>{{"A", 2}, {"B", 1}, {"C", 1}}));
+    assert((restoredLine.getStationCounts() == std::map<std::string, int>{{"A", 1}, {"B", 1}, {"C", 1}, {"D", 1}}));
     assert(restoredLine.processMaterial(2) == 3);
     assert((restoredLine.getProducts() == std::vector<int>{3, 3}));
-    assert((restoredLine.getStationCounts() == std::map<std::string, int>{{"A", 4}, {"B", 2}, {"C", 2}}));
+    assert((restoredLine.getStationCounts() == std::map<std::string, int>{{"A", 2}, {"B", 2}, {"C", 2}, {"D", 2}}));
 
     std::remove(savePath.c_str());
     ProductionLine missingLine;
@@ -105,7 +105,7 @@ int main()
     {
         std::ofstream output(savePath);
         output << "{\n";
-        output << "  \"flow\": [\"A\", \"D\"],\n";
+        output << "  \"flow\": [\"A\", \"E\"],\n";
         output << "  \"products\": [3],\n";
         output << "  \"counts\": {\"A\": 1}\n";
         output << "}\n";
@@ -137,7 +137,7 @@ int main()
     assert(emptyStateLine.getProducts().empty());
     assert(emptyStateLine.getStationCounts().empty());
 
-    writeFile(savePath, "{\n  \"flow\": [\"A\"],\n  \"products\": [],\n  \"counts\": {\"D\": 1}\n}\n");
+    writeFile(savePath, "{\n  \"flow\": [\"A\"],\n  \"products\": [],\n  \"counts\": {\"E\": 1}\n}\n");
     ProductionLine unknownCountStationLine;
     assert(!stateManager.load(unknownCountStationLine));
     assert(!unknownCountStationLine.hasFlow());

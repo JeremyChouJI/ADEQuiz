@@ -38,7 +38,7 @@ int main()
     assert(line.setFlow("A->C->B"));
     assert(line.processMaterial(1) == 2);
 
-    assert(!line.setFlow("A->D"));
+    assert(!line.setFlow("A->E"));
     assert(line.hasFlow());
     assert((line.getFlow() == std::vector<std::string>{"A", "C", "B"}));
     assert(line.processMaterial(10) == 10);
@@ -75,6 +75,19 @@ int main()
     assert((singleStationCLine.getProducts() == std::vector<int>{2}));
     assert((singleStationCLine.getStationCounts() == std::map<std::string, int>{{"C", 1}}));
 
+    ProductionLine singleStationDLine;
+    assert(singleStationDLine.setFlow("D"));
+    assert(singleStationDLine.processMaterial(3) == 4);
+    assert(singleStationDLine.processMaterial(4) == 6);
+    assert((singleStationDLine.getProducts() == std::vector<int>{4, 6}));
+    assert((singleStationDLine.getStationCounts() == std::map<std::string, int>{{"D", 2}}));
+
+    ProductionLine stationDRouteLine;
+    assert(stationDRouteLine.setFlow("A->D->B"));
+    assert(stationDRouteLine.processMaterial(1) == 3);
+    assert((stationDRouteLine.getProducts() == std::vector<int>{3}));
+    assert((stationDRouteLine.getStationCounts() == std::map<std::string, int>{{"A", 1}, {"B", 1}, {"D", 1}}));
+
     ProductionLine stationCSkipLine;
     assert(stationCSkipLine.setFlow("C->A"));
     assert(stationCSkipLine.processMaterial(2) == 2);
@@ -95,10 +108,10 @@ int main()
     assert(emptyRestoreLine.getStationCounts().empty());
 
     ProductionLine zeroCountRestoreLine;
-    assert(zeroCountRestoreLine.restoreState({"A"}, {}, {{"A", 0}}));
-    assert((zeroCountRestoreLine.getFlow() == std::vector<std::string>{"A"}));
+    assert(zeroCountRestoreLine.restoreState({"D"}, {}, {{"D", 0}}));
+    assert((zeroCountRestoreLine.getFlow() == std::vector<std::string>{"D"}));
     assert(zeroCountRestoreLine.getProducts().empty());
-    assert((zeroCountRestoreLine.getStationCounts() == std::map<std::string, int>{{"A", 0}}));
+    assert((zeroCountRestoreLine.getStationCounts() == std::map<std::string, int>{{"D", 0}}));
 
     ProductionLine integerLimitRestoreLine;
     assert(integerLimitRestoreLine.restoreState(
@@ -137,6 +150,32 @@ int main()
     assert(stationBOverflowLine.getProducts().empty());
     assert(stationBOverflowLine.getStationCounts().empty());
 
+    ProductionLine stationDOddOverflowLine;
+    assert(stationDOddOverflowLine.setFlow("D"));
+    bool stationDOddOverflowThrew = false;
+    try {
+        stationDOddOverflowLine.processMaterial(std::numeric_limits<int>::max());
+    } catch (const std::overflow_error& error) {
+        stationDOddOverflowThrew = true;
+        assert(std::string(error.what()) == "result is outside the supported integer range.");
+    }
+    assert(stationDOddOverflowThrew);
+    assert(stationDOddOverflowLine.getProducts().empty());
+    assert(stationDOddOverflowLine.getStationCounts().empty());
+
+    ProductionLine stationDEvenOverflowLine;
+    assert(stationDEvenOverflowLine.setFlow("D"));
+    bool stationDEvenOverflowThrew = false;
+    try {
+        stationDEvenOverflowLine.processMaterial(std::numeric_limits<int>::max() - 1);
+    } catch (const std::overflow_error& error) {
+        stationDEvenOverflowThrew = true;
+        assert(std::string(error.what()) == "result is outside the supported integer range.");
+    }
+    assert(stationDEvenOverflowThrew);
+    assert(stationDEvenOverflowLine.getProducts().empty());
+    assert(stationDEvenOverflowLine.getStationCounts().empty());
+
     ProductionLine partialOverflowLine;
     assert(partialOverflowLine.setFlow("C->A"));
     bool partialOverflowThrew = false;
@@ -154,7 +193,7 @@ int main()
     assert((statsLine.getProducts() == std::vector<int>{3, 3}));
     assert((statsLine.getStationCounts() == std::map<std::string, int>{{"A", 4}, {"B", 1}, {"C", 1}}));
 
-    assert(!statsLine.setFlow("A->D"));
+    assert(!statsLine.setFlow("A->E"));
     assert((statsLine.getProducts() == std::vector<int>{3, 3}));
     assert((statsLine.getStationCounts() == std::map<std::string, int>{{"A", 4}, {"B", 1}, {"C", 1}}));
 

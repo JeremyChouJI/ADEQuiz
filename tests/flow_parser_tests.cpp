@@ -38,6 +38,7 @@ int main()
     assertSuccess("A", {"A"});
     assertSuccess("A->B", {"A", "B"});
     assertSuccess("C->B->A", {"C", "B", "A"});
+    assertSuccess("A->D->B", {"A", "D", "B"});
     assertSuccess("A->B->C->B->A", {"A", "B", "C", "B", "A"});
     assertSuccess(" A -> B ", {"A", "B"});
     assertSuccess("A-> B ->C", {"A", "B", "C"});
@@ -53,7 +54,7 @@ int main()
     assertFormatError("A=>B");
     assertFormatError("A - > B");
 
-    assertUnknownStation("A->D->B", "D");
+    assertUnknownStation("A->E->B", "E");
     assertUnknownStation("a", "a");
     assertUnknownStation("AA", "AA");
     assertUnknownStation("A1", "A1");

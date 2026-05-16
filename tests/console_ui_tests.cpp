@@ -398,7 +398,7 @@ int main()
 
     {
         ProductionLine line;
-        std::istringstream input("1\nA->\n1\nA->D->B\n7\n");
+        std::istringstream input("1\nA->\n1\nA->E->B\n7\n");
         std::ostringstream output;
         ConsoleUI ui(line, input, output);
 
@@ -406,7 +406,7 @@ int main()
 
         const std::string text = output.str();
         assert(contains(text, "Invalid flow format. Please use format like A->B->C."));
-        assert(contains(text, "Unknown station: D"));
+        assert(contains(text, "Unknown station: E"));
     }
 
     {

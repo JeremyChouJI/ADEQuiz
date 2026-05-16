@@ -2,7 +2,9 @@
 #include "station/StationFactory.h"
 
 #include <cassert>
+#include <limits>
 #include <memory>
+#include <stdexcept>
 #include <string>
 
 int main()
@@ -10,6 +12,7 @@ int main()
     StationA stationA;
     StationB stationB;
     StationC stationC;
+    StationD stationD;
 
     assert(stationA.name() == "A");
     ProcessResult resultA = stationA.process(10);
@@ -42,6 +45,41 @@ int main()
     assert(negativeEvenResultC.value == -2);
     assert(negativeEvenResultC.nextStepOffset == 2);
 
+    assert(stationD.name() == "D");
+    ProcessResult oddResultD = stationD.process(5);
+    assert(oddResultD.value == 6);
+    assert(oddResultD.nextStepOffset == 1);
+
+    ProcessResult evenResultD = stationD.process(6);
+    assert(evenResultD.value == 8);
+    assert(evenResultD.nextStepOffset == 1);
+
+    ProcessResult negativeOddResultD = stationD.process(-1);
+    assert(negativeOddResultD.value == 0);
+    assert(negativeOddResultD.nextStepOffset == 1);
+
+    ProcessResult negativeEvenResultD = stationD.process(-2);
+    assert(negativeEvenResultD.value == 0);
+    assert(negativeEvenResultD.nextStepOffset == 1);
+
+    bool stationDOddOverflowThrew = false;
+    try {
+        stationD.process(std::numeric_limits<int>::max());
+    } catch (const std::overflow_error& error) {
+        stationDOddOverflowThrew = true;
+        assert(std::string(error.what()) == "result is outside the supported integer range.");
+    }
+    assert(stationDOddOverflowThrew);
+
+    bool stationDEvenOverflowThrew = false;
+    try {
+        stationD.process(std::numeric_limits<int>::max() - 1);
+    } catch (const std::overflow_error& error) {
+        stationDEvenOverflowThrew = true;
+        assert(std::string(error.what()) == "result is outside the supported integer range.");
+    }
+    assert(stationDEvenOverflowThrew);
+
     ProcessResult negativeToZeroResultA = stationA.process(-1);
     assert(negativeToZeroResultA.value == 0);
     assert(negativeToZeroResultA.nextStepOffset == 1);
@@ -53,7 +91,7 @@ int main()
     assert(StationFactory::isSupportedStation("A"));
     assert(StationFactory::isSupportedStation("B"));
     assert(StationFactory::isSupportedStation("C"));
-    assert(!StationFactory::isSupportedStation("D"));
+    assert(StationFactory::isSupportedStation("D"));
     assert(!StationFactory::isSupportedStation(""));
 
     std::unique_ptr<ProcessingStation> createdA = StationFactory::createStation("A");
@@ -71,7 +109,8 @@ int main()
     assert(createdC != nullptr);
     assert(createdC->name() == "C");
 
-    assert(createdD == nullptr);
+    assert(createdD != nullptr);
+    assert(createdD->name() == "D");
     assert(createdEmpty == nullptr);
 
     return 0;

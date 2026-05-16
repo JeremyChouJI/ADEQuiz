@@ -21,4 +21,10 @@ public:
     ProcessResult process(int input) override;
 };
 
+class StationD : public ProcessingStation {
+public:
+    std::string name() const override;
+    ProcessResult process(int input) override;
+};
+
 #endif

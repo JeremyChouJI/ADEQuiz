@@ -14,6 +14,7 @@ const std::map<std::string, StationCreator>& stationCreators()
         {"A", []() { return std::make_unique<StationA>(); }},
         {"B", []() { return std::make_unique<StationB>(); }},
         {"C", []() { return std::make_unique<StationC>(); }},
+        {"D", []() { return std::make_unique<StationD>(); }},
     };
 
     return creators;

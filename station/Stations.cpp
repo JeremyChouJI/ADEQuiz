@@ -47,3 +47,18 @@ ProcessResult StationC::process(int input)
 {
     return {input, input % 2 == 0 ? 2 : 1};
 }
+
+std::string StationD::name() const
+{
+    return "D";
+}
+
+ProcessResult StationD::process(int input)
+{
+    const int increment = input % 2 == 0 ? 2 : 1;
+    if (input > std::numeric_limits<int>::max() - increment) {
+        throw std::overflow_error(overflowMessage());
+    }
+
+    return {input + increment, 1};
+}
