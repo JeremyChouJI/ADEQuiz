@@ -2,6 +2,7 @@
 #include "flow/FlowParser.h"
 #include "station/StationFactory.h"
 
+#include <map>
 #include <stdexcept>
 
 bool ProductionLine::setFlow(const std::string& flowText)
@@ -36,6 +37,7 @@ int ProductionLine::processMaterial(int input)
 
     int currentValue = input;
     std::size_t currentStep = 0;
+    std::map<std::string, int> processingCounts;
 
     while (currentStep < activeRoute.size()) {
         const std::unique_ptr<ProcessingStation> station = StationFactory::createStation(activeRoute[currentStep]);
@@ -46,9 +48,13 @@ int ProductionLine::processMaterial(int input)
 
         const std::string stationName = station->name();
         const ProcessResult result = station->process(currentValue);
-        ++stationCounts[stationName];
+        ++processingCounts[stationName];
         currentValue = result.value;
         currentStep += static_cast<std::size_t>(result.nextStepOffset);
+    }
+
+    for (const auto& processingCount : processingCounts) {
+        stationCounts[processingCount.first] += processingCount.second;
     }
 
     products.push_back(currentValue);

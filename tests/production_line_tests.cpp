@@ -111,6 +111,44 @@ int main()
     }));
     assert((integerLimitRestoreLine.getStationCounts() == std::map<std::string, int>{{"C", 0}}));
 
+    ProductionLine stationAOverflowLine;
+    assert(stationAOverflowLine.setFlow("A"));
+    bool stationAOverflowThrew = false;
+    try {
+        stationAOverflowLine.processMaterial(std::numeric_limits<int>::max());
+    } catch (const std::overflow_error& error) {
+        stationAOverflowThrew = true;
+        assert(std::string(error.what()) == "result is outside the supported integer range.");
+    }
+    assert(stationAOverflowThrew);
+    assert(stationAOverflowLine.getProducts().empty());
+    assert(stationAOverflowLine.getStationCounts().empty());
+
+    ProductionLine stationBOverflowLine;
+    assert(stationBOverflowLine.setFlow("B"));
+    bool stationBOverflowThrew = false;
+    try {
+        stationBOverflowLine.processMaterial(std::numeric_limits<int>::min());
+    } catch (const std::overflow_error& error) {
+        stationBOverflowThrew = true;
+        assert(std::string(error.what()) == "result is outside the supported integer range.");
+    }
+    assert(stationBOverflowThrew);
+    assert(stationBOverflowLine.getProducts().empty());
+    assert(stationBOverflowLine.getStationCounts().empty());
+
+    ProductionLine partialOverflowLine;
+    assert(partialOverflowLine.setFlow("C->A"));
+    bool partialOverflowThrew = false;
+    try {
+        partialOverflowLine.processMaterial(std::numeric_limits<int>::max());
+    } catch (const std::overflow_error&) {
+        partialOverflowThrew = true;
+    }
+    assert(partialOverflowThrew);
+    assert(partialOverflowLine.getProducts().empty());
+    assert(partialOverflowLine.getStationCounts().empty());
+
     assert(statsLine.setFlow("A->B->C->B->A"));
     assert(statsLine.processMaterial(2) == 3);
     assert((statsLine.getProducts() == std::vector<int>{3, 3}));

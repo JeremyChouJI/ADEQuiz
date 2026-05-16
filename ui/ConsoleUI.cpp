@@ -166,6 +166,8 @@ void ConsoleUI::inputRawMaterial()
         output << "Invalid input. Please enter an integer.\n";
     } catch (const std::out_of_range&) {
         output << "Invalid input. Please enter an integer.\n";
+    } catch (const std::overflow_error& error) {
+        output << "Processing failed: " << error.what() << '\n';
     } catch (const std::logic_error& error) {
         output << error.what() << '\n';
     }

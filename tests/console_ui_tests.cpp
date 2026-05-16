@@ -349,6 +349,54 @@ int main()
     }
 
     {
+        const std::string savePath = "adequiz_console_ui_station_a_overflow_state.json";
+        std::remove(savePath.c_str());
+
+        ProductionLine line;
+        std::istringstream input("1\nA\n2\n2147483647\n7\n");
+        std::ostringstream output;
+        ConsoleUI ui(line, input, output, savePath);
+
+        ui.run();
+
+        const std::string text = output.str();
+        assert(contains(text, "Processing failed: result is outside the supported integer range."));
+        assert(!contains(text, "Final product:"));
+        assert(line.getProducts().empty());
+        assert(line.getStationCounts().empty());
+
+        const nlohmann::json savedJson = readJsonFile(savePath);
+        assert((savedJson.at("products").get<std::vector<int>>() == std::vector<int>{}));
+        assert((savedJson.at("counts").get<std::map<std::string, int>>() == std::map<std::string, int>{}));
+
+        std::remove(savePath.c_str());
+    }
+
+    {
+        const std::string savePath = "adequiz_console_ui_station_b_overflow_state.json";
+        std::remove(savePath.c_str());
+
+        ProductionLine line;
+        std::istringstream input("1\nB\n2\n-2147483648\n7\n");
+        std::ostringstream output;
+        ConsoleUI ui(line, input, output, savePath);
+
+        ui.run();
+
+        const std::string text = output.str();
+        assert(contains(text, "Processing failed: result is outside the supported integer range."));
+        assert(!contains(text, "Final product:"));
+        assert(line.getProducts().empty());
+        assert(line.getStationCounts().empty());
+
+        const nlohmann::json savedJson = readJsonFile(savePath);
+        assert((savedJson.at("products").get<std::vector<int>>() == std::vector<int>{}));
+        assert((savedJson.at("counts").get<std::map<std::string, int>>() == std::map<std::string, int>{}));
+
+        std::remove(savePath.c_str());
+    }
+
+    {
         ProductionLine line;
         std::istringstream input("1\nA->\n1\nA->D->B\n7\n");
         std::ostringstream output;
