@@ -25,6 +25,7 @@ private:
     void showCurrentFlow() const;
     void showProducts() const;
     void showStationCounts() const;
+    void resetState();
 
     ProductionLine& productionLine;
     std::istream& input;

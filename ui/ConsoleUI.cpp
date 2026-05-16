@@ -86,15 +86,16 @@ void ConsoleUI::showMenu() const
     output << "3. Show current processing flow\n";
     output << "4. Show all products\n";
     output << "5. Show station processing counts\n";
-    output << "6. Exit and save\n";
+    output << "6. Reset application state\n";
+    output << "7. Exit and save\n";
     output << "Please choose:\n";
 }
 
 bool ConsoleUI::handleChoice(const std::string& choice)
 {
     int menuChoice = 0;
-    if (!parseInteger(choice, menuChoice) || menuChoice < 1 || menuChoice > 6) {
-        output << "Invalid choice. Please choose a number from 1 to 6.\n";
+    if (!parseInteger(choice, menuChoice) || menuChoice < 1 || menuChoice > 7) {
+        output << "Invalid choice. Please choose a number from 1 to 7.\n";
         output << '\n';
         return true;
     }
@@ -110,6 +111,8 @@ bool ConsoleUI::handleChoice(const std::string& choice)
     } else if (menuChoice == 5) {
         showStationCounts();
     } else if (menuChoice == 6) {
+        resetState();
+    } else if (menuChoice == 7) {
         if (!stateManager.save(productionLine)) {
             output << "Warning: Could not save application state.\n";
         }
@@ -184,6 +187,31 @@ void ConsoleUI::showCurrentFlow() const
     }
 
     output << '\n';
+}
+
+void ConsoleUI::resetState()
+{
+    output << "Type RESET to confirm clearing all saved state:\n";
+
+    std::string confirmation;
+    if (!std::getline(input, confirmation)) {
+        output << "State reset canceled.\n";
+        return;
+    }
+
+    if (confirmation != "RESET") {
+        output << "State reset canceled.\n";
+        return;
+    }
+
+    ProductionLine emptyLine;
+    if (!stateManager.save(emptyLine)) {
+        output << "Warning: Could not reset application state.\n";
+        return;
+    }
+
+    productionLine.restoreState({}, {}, {});
+    output << "Application state has been reset.\n";
 }
 
 void ConsoleUI::showProducts() const
