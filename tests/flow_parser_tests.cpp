@@ -35,19 +35,28 @@ void assertUnknownStation(const std::string& flowText, const std::string& statio
 
 int main()
 {
+    assertSuccess("A", {"A"});
     assertSuccess("A->B", {"A", "B"});
     assertSuccess("C->B->A", {"C", "B", "A"});
     assertSuccess("A->B->C->B->A", {"A", "B", "C", "B", "A"});
+    assertSuccess(" A -> B ", {"A", "B"});
+    assertSuccess("A-> B ->C", {"A", "B", "C"});
 
     assertFormatError("");
     assertFormatError("   ");
     assertFormatError("->A");
     assertFormatError("A->");
+    assertFormatError("A -> ");
+    assertFormatError("A->B->   ");
     assertFormatError("A->->B");
     assertFormatError("A--B");
     assertFormatError("A=>B");
+    assertFormatError("A - > B");
 
     assertUnknownStation("A->D->B", "D");
+    assertUnknownStation("a", "a");
+    assertUnknownStation("AA", "AA");
+    assertUnknownStation("A1", "A1");
 
     return 0;
 }

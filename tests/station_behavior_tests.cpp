@@ -30,6 +30,26 @@ int main()
     assert(evenResultC.value == 6);
     assert(evenResultC.nextStepOffset == 2);
 
+    ProcessResult zeroResultC = stationC.process(0);
+    assert(zeroResultC.value == 0);
+    assert(zeroResultC.nextStepOffset == 2);
+
+    ProcessResult negativeOddResultC = stationC.process(-1);
+    assert(negativeOddResultC.value == -1);
+    assert(negativeOddResultC.nextStepOffset == 1);
+
+    ProcessResult negativeEvenResultC = stationC.process(-2);
+    assert(negativeEvenResultC.value == -2);
+    assert(negativeEvenResultC.nextStepOffset == 2);
+
+    ProcessResult negativeToZeroResultA = stationA.process(-1);
+    assert(negativeToZeroResultA.value == 0);
+    assert(negativeToZeroResultA.nextStepOffset == 1);
+
+    ProcessResult zeroToNegativeResultB = stationB.process(0);
+    assert(zeroToNegativeResultB.value == -1);
+    assert(zeroToNegativeResultB.nextStepOffset == 1);
+
     assert(StationFactory::isSupportedStation("A"));
     assert(StationFactory::isSupportedStation("B"));
     assert(StationFactory::isSupportedStation("C"));

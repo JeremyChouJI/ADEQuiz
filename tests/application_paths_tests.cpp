@@ -10,12 +10,32 @@
 
 int main()
 {
+    const std::string fileNameOnlyStatePath =
+        app::stateFilePathNextToExecutable("ADEQuiz.exe");
+
+    assert(fileNameOnlyStatePath == "state.json");
+
+    const std::string emptyExecutableStatePath =
+        app::stateFilePathNextToExecutable("");
+
+    assert(emptyExecutableStatePath == "state.json");
+
     const std::string statePath =
         app::stateFilePathNextToExecutable("portable/ADEQuiz.exe");
 
     assert(statePath == "portable/state.json");
 
+    const std::string nestedForwardSlashStatePath =
+        app::stateFilePathNextToExecutable("portable/tools/ADEQuiz.exe");
+
+    assert(nestedForwardSlashStatePath == "portable/tools/state.json");
+
 #ifdef _WIN32
+    const std::string windowsRootStatePath =
+        app::stateFilePathNextToExecutable("C:\\ADEQuiz.exe");
+
+    assert(windowsRootStatePath == "C:\\state.json");
+
     const std::string windowsStatePath =
         app::stateFilePathNextToExecutable("C:\\Portable\\ADEQuiz\\ADEQuiz.exe");
 

@@ -1,6 +1,7 @@
 #include "production/ProductionLine.h"
 
 #include <cassert>
+#include <limits>
 #include <map>
 #include <stdexcept>
 #include <vector>
@@ -60,6 +61,55 @@ int main()
     assert(statsLine.processMaterial(1) == 3);
     assert((statsLine.getProducts() == std::vector<int>{3}));
     assert((statsLine.getStationCounts() == std::map<std::string, int>{{"A", 2}}));
+
+    ProductionLine singleStationLine;
+    assert(singleStationLine.setFlow("A"));
+    assert(singleStationLine.hasFlow());
+    assert(singleStationLine.processMaterial(10) == 11);
+    assert((singleStationLine.getProducts() == std::vector<int>{11}));
+    assert((singleStationLine.getStationCounts() == std::map<std::string, int>{{"A", 1}}));
+
+    ProductionLine singleStationCLine;
+    assert(singleStationCLine.setFlow("C"));
+    assert(singleStationCLine.processMaterial(2) == 2);
+    assert((singleStationCLine.getProducts() == std::vector<int>{2}));
+    assert((singleStationCLine.getStationCounts() == std::map<std::string, int>{{"C", 1}}));
+
+    ProductionLine stationCSkipLine;
+    assert(stationCSkipLine.setFlow("C->A"));
+    assert(stationCSkipLine.processMaterial(2) == 2);
+    assert((stationCSkipLine.getProducts() == std::vector<int>{2}));
+    assert((stationCSkipLine.getStationCounts() == std::map<std::string, int>{{"C", 1}}));
+
+    ProductionLine stationCNoSkipLine;
+    assert(stationCNoSkipLine.setFlow("C->A"));
+    assert(stationCNoSkipLine.processMaterial(3) == 4);
+    assert((stationCNoSkipLine.getProducts() == std::vector<int>{4}));
+    assert((stationCNoSkipLine.getStationCounts() == std::map<std::string, int>{{"A", 1}, {"C", 1}}));
+
+    ProductionLine emptyRestoreLine;
+    assert(emptyRestoreLine.restoreState({}, {}, {}));
+    assert(!emptyRestoreLine.hasFlow());
+    assert(emptyRestoreLine.getFlow().empty());
+    assert(emptyRestoreLine.getProducts().empty());
+    assert(emptyRestoreLine.getStationCounts().empty());
+
+    ProductionLine zeroCountRestoreLine;
+    assert(zeroCountRestoreLine.restoreState({"A"}, {}, {{"A", 0}}));
+    assert((zeroCountRestoreLine.getFlow() == std::vector<std::string>{"A"}));
+    assert(zeroCountRestoreLine.getProducts().empty());
+    assert((zeroCountRestoreLine.getStationCounts() == std::map<std::string, int>{{"A", 0}}));
+
+    ProductionLine integerLimitRestoreLine;
+    assert(integerLimitRestoreLine.restoreState(
+        {"C"},
+        {std::numeric_limits<int>::min(), std::numeric_limits<int>::max()},
+        {{"C", 0}}));
+    assert((integerLimitRestoreLine.getProducts() == std::vector<int>{
+        std::numeric_limits<int>::min(),
+        std::numeric_limits<int>::max()
+    }));
+    assert((integerLimitRestoreLine.getStationCounts() == std::map<std::string, int>{{"C", 0}}));
 
     assert(statsLine.setFlow("A->B->C->B->A"));
     assert(statsLine.processMaterial(2) == 3);
