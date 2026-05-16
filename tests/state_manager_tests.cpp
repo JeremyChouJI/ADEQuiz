@@ -1,11 +1,15 @@
 #include "production/ProductionLine.h"
 #include "state/StateManager.h"
 
+#include <nlohmann/json.hpp>
+
 #include <cassert>
 #include <cstdio>
 #include <fstream>
+#include <map>
 #include <sstream>
 #include <string>
+#include <vector>
 
 namespace {
 std::string readFile(const std::string& path)
@@ -16,9 +20,9 @@ std::string readFile(const std::string& path)
     return buffer.str();
 }
 
-bool contains(const std::string& text, const std::string& expected)
+nlohmann::json readJsonFile(const std::string& path)
 {
-    return text.find(expected) != std::string::npos;
+    return nlohmann::json::parse(readFile(path));
 }
 }
 
@@ -34,13 +38,10 @@ int main()
     StateManager stateManager(savePath);
     assert(stateManager.save(line));
 
-    const std::string json = readFile(savePath);
-    assert(contains(json, "\"flow\": [\"A\", \"B\", \"C\", \"B\", \"A\"]"));
-    assert(contains(json, "\"products\": [3]"));
-    assert(contains(json, "\"counts\": {"));
-    assert(contains(json, "\"A\": 2"));
-    assert(contains(json, "\"B\": 1"));
-    assert(contains(json, "\"C\": 1"));
+    const nlohmann::json savedJson = readJsonFile(savePath);
+    assert((savedJson.at("flow").get<std::vector<std::string>>() == std::vector<std::string>{"A", "B", "C", "B", "A"}));
+    assert((savedJson.at("products").get<std::vector<int>>() == std::vector<int>{3}));
+    assert((savedJson.at("counts").get<std::map<std::string, int>>() == std::map<std::string, int>{{"A", 2}, {"B", 1}, {"C", 1}}));
 
     ProductionLine restoredLine;
     assert(stateManager.load(restoredLine));
@@ -71,6 +72,33 @@ int main()
     {
         std::ofstream output(savePath);
         output << "{\n";
+        output << "  \"flow\": [\"A\", \"B\"],\n";
+        output << "  \"counts\": {\"A\": 1}\n";
+        output << "}\n";
+    }
+    ProductionLine missingFieldLine;
+    assert(!stateManager.load(missingFieldLine));
+    assert(!missingFieldLine.hasFlow());
+    assert(missingFieldLine.getProducts().empty());
+    assert(missingFieldLine.getStationCounts().empty());
+
+    {
+        std::ofstream output(savePath);
+        output << "{\n";
+        output << "  \"flow\": [\"A\", \"B\"],\n";
+        output << "  \"products\": \"not an array\",\n";
+        output << "  \"counts\": {\"A\": 1}\n";
+        output << "}\n";
+    }
+    ProductionLine wrongTypeLine;
+    assert(!stateManager.load(wrongTypeLine));
+    assert(!wrongTypeLine.hasFlow());
+    assert(wrongTypeLine.getProducts().empty());
+    assert(wrongTypeLine.getStationCounts().empty());
+
+    {
+        std::ofstream output(savePath);
+        output << "{\n";
         output << "  \"flow\": [\"A\", \"D\"],\n";
         output << "  \"products\": [3],\n";
         output << "  \"counts\": {\"A\": 1}\n";
@@ -81,6 +109,20 @@ int main()
     assert(!invalidLine.hasFlow());
     assert(invalidLine.getProducts().empty());
     assert(invalidLine.getStationCounts().empty());
+
+    {
+        std::ofstream output(savePath);
+        output << "{\n";
+        output << "  \"flow\": [\"A\", \"B\"],\n";
+        output << "  \"products\": [3],\n";
+        output << "  \"counts\": {\"A\": -1}\n";
+        output << "}\n";
+    }
+    ProductionLine negativeCountLine;
+    assert(!stateManager.load(negativeCountLine));
+    assert(!negativeCountLine.hasFlow());
+    assert(negativeCountLine.getProducts().empty());
+    assert(negativeCountLine.getStationCounts().empty());
 
     StateManager failingStateManager("C:\\tmp\\adequiz_missing_directory\\state.json");
     assert(!failingStateManager.save(line));

@@ -2,9 +2,16 @@ cmake_minimum_required(VERSION 3.16)
 
 project(ADEQuiz LANGUAGES CXX)
 
+include(FetchContent)
+
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
+
+FetchContent_Declare(json
+    URL https://github.com/nlohmann/json/releases/download/v3.11.3/json.tar.xz
+)
+FetchContent_MakeAvailable(json)
 
 add_library(stations
     app/ApplicationPaths.cpp
@@ -19,6 +26,11 @@ add_library(stations
 target_include_directories(stations
     PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}
+)
+
+target_link_libraries(stations
+    PUBLIC
+        nlohmann_json::nlohmann_json
 )
 
 add_executable(ADEQuiz

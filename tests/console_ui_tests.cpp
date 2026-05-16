@@ -2,11 +2,15 @@
 
 #include "production/ProductionLine.h"
 
+#include <nlohmann/json.hpp>
+
 #include <cassert>
 #include <cstdio>
 #include <fstream>
+#include <map>
 #include <sstream>
 #include <string>
+#include <vector>
 
 namespace {
 bool contains(const std::string& text, const std::string& expected)
@@ -20,6 +24,11 @@ std::string readFile(const std::string& path)
     std::ostringstream buffer;
     buffer << input.rdbuf();
     return buffer.str();
+}
+
+nlohmann::json readJsonFile(const std::string& path)
+{
+    return nlohmann::json::parse(readFile(path));
 }
 
 bool fileExists(const std::string& path)
@@ -54,10 +63,10 @@ int main()
         assert(contains(text, "Station B processed 1 time"));
         assert(contains(text, "Station C processed 1 time"));
 
-        const std::string json = readFile(savePath);
-        assert(contains(json, "\"flow\": [\"A\", \"B\", \"C\", \"B\", \"A\"]"));
-        assert(contains(json, "\"products\": [3]"));
-        assert(contains(json, "\"A\": 2"));
+        const nlohmann::json savedJson = readJsonFile(savePath);
+        assert((savedJson.at("flow").get<std::vector<std::string>>() == std::vector<std::string>{"A", "B", "C", "B", "A"}));
+        assert((savedJson.at("products").get<std::vector<int>>() == std::vector<int>{3}));
+        assert(savedJson.at("counts").at("A").get<int>() == 2);
 
         std::remove(savePath.c_str());
     }
@@ -118,12 +127,10 @@ int main()
         const std::string text = output.str();
         assert(contains(text, "Final product: 3"));
 
-        const std::string json = readFile(savePath);
-        assert(contains(json, "\"flow\": [\"A\", \"B\", \"C\", \"B\", \"A\"]"));
-        assert(contains(json, "\"products\": [3]"));
-        assert(contains(json, "\"A\": 2"));
-        assert(contains(json, "\"B\": 1"));
-        assert(contains(json, "\"C\": 1"));
+        const nlohmann::json savedJson = readJsonFile(savePath);
+        assert((savedJson.at("flow").get<std::vector<std::string>>() == std::vector<std::string>{"A", "B", "C", "B", "A"}));
+        assert((savedJson.at("products").get<std::vector<int>>() == std::vector<int>{3}));
+        assert((savedJson.at("counts").get<std::map<std::string, int>>() == std::map<std::string, int>{{"A", 2}, {"B", 1}, {"C", 1}}));
 
         std::remove(savePath.c_str());
     }
@@ -267,10 +274,10 @@ int main()
         assert(line.getProducts().empty());
         assert(line.getStationCounts().empty());
 
-        const std::string json = readFile(savePath);
-        assert(contains(json, "\"flow\": []"));
-        assert(contains(json, "\"products\": []"));
-        assert(contains(json, "\"counts\": {  }"));
+        const nlohmann::json savedJson = readJsonFile(savePath);
+        assert((savedJson.at("flow").get<std::vector<std::string>>() == std::vector<std::string>{}));
+        assert((savedJson.at("products").get<std::vector<int>>() == std::vector<int>{}));
+        assert((savedJson.at("counts").get<std::map<std::string, int>>() == std::map<std::string, int>{}));
 
         std::remove(savePath.c_str());
     }
