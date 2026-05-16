@@ -92,6 +92,8 @@ A--B
 
 ## Save File
 
+By default, the program stores `state.json` in the same folder as the running `ADEQuiz.exe`. Keep `ADEQuiz.exe` and `state.json` together when moving the app between folders so saved history is restored consistently.
+
 The program stores state in a JSON file, including:
 
 - Current processing flow

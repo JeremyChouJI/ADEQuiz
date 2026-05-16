@@ -7,6 +7,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 add_library(stations
+    app/ApplicationPaths.cpp
     flow/FlowParser.cpp
     production/ProductionLine.cpp
     state/StateManager.cpp
@@ -85,3 +86,14 @@ target_link_libraries(state_manager_tests
 )
 
 add_test(NAME state_manager_tests COMMAND state_manager_tests)
+
+add_executable(application_paths_tests
+    tests/application_paths_tests.cpp
+)
+
+target_link_libraries(application_paths_tests
+    PRIVATE
+        stations
+)
+
+add_test(NAME application_paths_tests COMMAND application_paths_tests)
